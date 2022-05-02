@@ -1,5 +1,6 @@
 const { program } = require("commander");
 const mxGenerator = require("../../graph/MxGenerator");
+const path = require("path");
 
 let ciMode = false;
 
@@ -17,7 +18,7 @@ program
         false
     )
     .option("--stacks [stacks]", "Comma separated list of stack name(s) to include. Defaults to all.")
-    .option("-o, --output-file [outputFile]", "Name of output file", "template.drawio")
+    .option("-o, --output-file [outputFile]", "Name of output file")
     .option(
         "-co, --cdk-output [outputPath]",
         "CDK synth output path",
@@ -34,6 +35,13 @@ program
     )
     .description("Generates a draw.io diagram from a CloudFormation template")
     .action(async (cmd) => {
+        if (!cmd.outputFile) {
+            cmd.outputFile = path.join(path.dirname(cmd.templateFile),"template.drawio");
+        }
+        if (!cmd.excludeTypes) {
+            cmd.excludeTypes = [];
+        }
+        cmd.excludeTypes.push("AWS::CDK::Metadata")
         await mxGenerator.generate(cmd);
     });
 
